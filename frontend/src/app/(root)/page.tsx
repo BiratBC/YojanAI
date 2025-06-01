@@ -9,6 +9,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import Image from "next/image";
+import Link from "next/link";
 
 
 export default function Home() {
@@ -32,9 +33,9 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col sm:flex-row items-start gap-6 ">
-              <button className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-colors shadow-lg hover:shadow-xl">
+              <Link href="/signup" className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-colors shadow-lg hover:shadow-xl">
                 Get Started
-              </button>
+              </Link>
               
               <div className="flex items-center gap-4">
                 <span className="text-gray-600 font-medium">Connect with:</span>

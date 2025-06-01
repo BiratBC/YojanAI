@@ -21,7 +21,7 @@ export default function Navbar() {
           <SheetTitle className="text-lg font-semibold">Menu</SheetTitle>
           <Link href="#" className="mr-6 hidden lg:flex" prefetch={false}>
             <Image
-              src="/icons/yojana-logo.png"
+              src="/icons/logo.png"
               alt="Logo"
               width={400}
               height={400}
@@ -115,14 +115,14 @@ export default function Navbar() {
         </div>
         <div className="secondary-nav hidden lg:flex gap-5 items-center">
             <Link
-            href="#"
+            href="/login"
             className="group inline-flex h-12 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-200 hover:text-gray-900"
             prefetch={false}
           >
             Login
           </Link>
           <Link
-            href="#"
+            href="/signup"
             className="bg-purple-500 text-white group inline-flex h-12 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-purple-600 hover:shadow-xl"
             prefetch={false}
           >
