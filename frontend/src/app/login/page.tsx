@@ -1,6 +1,7 @@
 import React from 'react'
-import { Calendar, Github } from 'lucide-react';
+import { Github } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const Login = () => {
   return (
@@ -54,12 +55,12 @@ const Login = () => {
 
               {/* Sign up buttons */}
               <div className="space-y-3">
-                <button className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 rounded-lg py-3 px-4 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-colors">
+                <Link href='/onboarding/user/welcome' className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 rounded-lg py-3 px-4 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-colors">
                   <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-red-500 rounded text-white flex items-center justify-center text-sm font-bold">
                     G
                   </div>
                   Agree & Sign up with Google
-                </button>
+                </Link>
                 
                 <button className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 rounded-lg py-3 px-4 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-colors">
                   <Github className="w-6 h-6" />

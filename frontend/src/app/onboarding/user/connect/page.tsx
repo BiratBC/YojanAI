@@ -1,6 +1,9 @@
+"use client"
 import React from "react";
-import { Calendar, User } from "lucide-react";
+import { User } from "lucide-react";
 import Image from "next/image";
+import ProgressBar from "@ramonak/react-progress-bar";
+import Link from "next/link";
 
 const Connect = () => {
   return (
@@ -79,15 +82,16 @@ const Connect = () => {
             </div>
             {/* Progress Bar */}
             <div className="space-y-4 mt-18">
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-purple-600 h-2 rounded-full w-1/3"></div>
-              </div>
+            
+
+              <ProgressBar completed={40} animateOnRender customLabel=" " height="10px" ariaValuemin={20}/>
+
             </div>
             {/* Continue Button */}
             <div className="flex justify-end mt-8">
-              <button className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors">
+              <Link href='/onboarding/user/upload' className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors">
                 Continue
-              </button>
+              </Link>
             </div>
           </div>
         </div>

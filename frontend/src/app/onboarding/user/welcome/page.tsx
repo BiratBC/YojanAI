@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { User, Calendar, Cpu, Upload } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import ProgressBar from "@ramonak/react-progress-bar";
 
 const Welcome = () => {
   return (
@@ -77,9 +78,7 @@ const Welcome = () => {
 
             {/* Progress Bar */}
             <div className="space-y-4 mt-6">
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-purple-600 h-2 rounded-full w-1/6"></div>
-              </div>
+              <ProgressBar completed={20} animateOnRender customLabel=" " height="10px"/>
             </div>
             {/* Continue Button */}
             <div className="flex justify-end mt-8">
