@@ -62,10 +62,10 @@ const Login = () => {
                   Agree & Sign up with Google
                 </Link>
                 
-                <button className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 rounded-lg py-3 px-4 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-colors">
+                <Link href={'/api/auth/signin'} className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 rounded-lg py-3 px-4 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-colors">
                   <Github className="w-6 h-6" />
                   Agree & Sign up with Github
-                </button>
+                </Link>
               </div>
             </div>
           </div>

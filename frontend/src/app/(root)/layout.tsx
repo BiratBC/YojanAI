@@ -1,4 +1,6 @@
 import Navbar from "@/components/Navbar";
+import SessionWrapper from "@/components/SessionWrapper";
+
 
 export default function RootLayout({
   children,
@@ -7,6 +9,7 @@ export default function RootLayout({
 }>) {
   return (
     <main className="">
+  
         <div className="navbar fixed top-0 z-50 w-full bg-white shadow-md">
             <Navbar/>
         </div>

@@ -1,3 +1,4 @@
+"use client";
 import {
   Sheet,
   SheetTrigger,
@@ -7,8 +8,12 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
+import { logout } from "@/lib/actions/auth";
 
 export default function Navbar() {
+  const { data: session, status } = useSession();
+
   return (
     <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6">
       <Sheet>
@@ -113,22 +118,45 @@ export default function Navbar() {
             Contact
           </Link>
         </div>
-        <div className="secondary-nav hidden lg:flex gap-5 items-center">
-            <Link
-            href="/login"
-            className="group inline-flex h-12 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-200 hover:text-gray-900"
-            prefetch={false}
-          >
-            Login
-          </Link>
-          <Link
-            href="/signup"
-            className="bg-purple-500 text-white group inline-flex h-12 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-purple-600 hover:shadow-xl"
-            prefetch={false}
-          >
-            Get Started
-          </Link>
-        </div>
+        {session ? (
+          <>
+            <div className="secondary-nav hidden lg:flex gap-5 items-center">
+              <img
+                src={session?.user?.image ?? "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
+                alt=""
+                width={48}
+                height={48}
+                className="rounded-3xl"
+              />
+              {session?.user?.name}
+              <button
+                onClick={() => logout()}
+                className="group inline-flex h-12 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-200 hover:text-gray-900"
+              >
+                Logout
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="secondary-nav hidden lg:flex gap-5 items-center">
+              <Link
+                href="/login"
+                className="group inline-flex h-12 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-200 hover:text-gray-900"
+                prefetch={false}
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="bg-purple-500 text-white group inline-flex h-12 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-purple-600 hover:shadow-xl"
+                prefetch={false}
+              >
+                Get Started
+              </Link>
+            </div>
+          </>
+        )}
       </nav>
     </header>
   );
