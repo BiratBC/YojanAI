@@ -1,13 +1,14 @@
 "use client";
 import React from "react";
 
-import { useSearchParams } from "next/navigation";
 import { User, Calendar, Cpu, Upload } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import ProgressBar from "@ramonak/react-progress-bar";
+import { useSession } from "next-auth/react";
 
 const Welcome = () => {
+  const { data: session, status } = useSession();
   return (
     <>
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -19,7 +20,16 @@ const Welcome = () => {
             {/* Header with Logo and User Icon */}
             <div className="flex justify-end items-start mb-6">
               <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
-                <User className="w-6 h-6 text-white" />
+                <img
+                  className="rounded-3xl"
+                  src={
+                    session?.user?.image ??
+                    `${<User className="w-6 h-6 text-white" />}`
+                  }
+                  height={48}
+                  width={48}
+                  alt="user-profile"
+                ></img>
               </div>
             </div>
 
@@ -78,11 +88,19 @@ const Welcome = () => {
 
             {/* Progress Bar */}
             <div className="space-y-4 mt-6">
-              <ProgressBar completed={20} animateOnRender customLabel=" " height="10px"/>
+              <ProgressBar
+                completed={20}
+                animateOnRender
+                customLabel=" "
+                height="10px"
+              />
             </div>
             {/* Continue Button */}
             <div className="flex justify-end mt-8">
-              <Link href="/onboarding/user/connect" className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors" >
+              <Link
+                href="/onboarding/user/connect"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors"
+              >
                 Continue
               </Link>
             </div>

@@ -11,7 +11,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-REDIRECT_URI = f"https://api.notion.com/v1/oauth/authorize?client_id={os.getenv("NOTION_CLIENT_ID")}&response_type=code&owner=user&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fonboarding%2Fuser%2Fconnect"
+REDIRECT_URI = "http://localhost:3000/onboarding/user/connect"
+
 
 @api_view()
 def upload_routine(request, *args, **kwargs):
@@ -28,7 +29,7 @@ def notion_token_exchange(request):
 
     token_url = "https://api.notion.com/v1/oauth/token"
 
-    auth_str = f"{os.getenv("NOTION_CLIENT_ID")}:{os.getenv("NOTION_SECRET")}"
+    auth_str = f"{os.getenv('NOTION_CLIENT_ID')}:{os.getenv('NOTION_SECRET')}"
     b64_auth_str = base64.b64encode(auth_str.encode()).decode()
 
     headers = {
