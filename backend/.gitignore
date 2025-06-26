@@ -2,7 +2,9 @@
 /venv
 
 # Python Bytecode
-/yojanai_project/__pycache__
+yojanai_project/__pycache__
+yojanai_app/__pycache__
+
 
 *.sqlite3
 *.db
