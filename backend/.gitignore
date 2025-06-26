@@ -9,3 +9,5 @@
 
 /.env
 
+
+/yojanai_app/__pycache__

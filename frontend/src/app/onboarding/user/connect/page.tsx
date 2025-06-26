@@ -31,44 +31,36 @@ const Connect = () => {
 
   // Use Effect //
   useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1)); // remove the '#'
-    const googleAccessToken = hashParams.get("access_token");
-    const urlParams = new URLSearchParams(window.location.search);
-    const notionCode = urlParams.get("code");
+  const hashParams = new URLSearchParams(window.location.hash.substring(1));
+  const googleAccessToken = hashParams.get("access_token");
+  const urlParams = new URLSearchParams(window.location.search);
+  const notionCode = urlParams.get("code");
 
-    if (notionCode) {
-      fetch("http://localhost:8000/api/notion/exchange-code/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: notionCode }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("Notion Access token:", data.access_token);
+  // Handle Notion
+  if (notionCode) {
+    fetch("http://localhost:8000/api/notion/exchange-code/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code: notionCode }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Notion Access token:", data.access_token);
+        localStorage.setItem("notion_access_token", data.access_token);
+        setNotionToken(data.access_token);
+      });
+  }
 
-          localStorage.setItem("notion_access_token", data.access_token);
-          setNotionToken(data.access_token);
-        });
-    }
+  // Handle Google Calendar
+  if (googleAccessToken) {
+    console.log("Google Access Token:", googleAccessToken);
+    localStorage.setItem("google_access_token", googleAccessToken);
+    setCalendarToken(googleAccessToken);
+  }
+}, []);
 
-    if (googleAccessToken) {
-      console.log("Google Access Token:", googleAccessToken);
-      localStorage.setItem("google_access_token", googleAccessToken);
-      setCalendarToken(googleAccessToken);
-    } else {
-      console.log("No access token found in URL.");
-    }
-
-    // Enable button if notion and calendar both are connected
-    if (localStorage.getItem("google_access_token") != undefined && localStorage.getItem("notion_access_token") != undefined) {
-      setButtonEnable(true)
-    }
-    console.log(buttonEnable);
-    
-
-  }, []);
 
   return (
     <>
