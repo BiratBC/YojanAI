@@ -18,6 +18,9 @@ export const authOptions = NextAuth({
       clientSecret: process.env.GITHUB_SECRET,
     }),
   ],
+  session : {
+    strategy : "jwt"
+  },
   callbacks: {
     async jwt({ token, account }) {
       if (account) {

@@ -1,11 +1,20 @@
-import React from 'react'
+import React from "react";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import DashboardComponent from "@/components/Dashboard";
 
-const Dashboard = () => {
+const Dashboard = async () => {
+  const session: any = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/");
+  }
   return (
-    <div>
-      Only access if user is logged in and set to onboard = true
-    </div>
-  )
-}
+    <>
+    <DashboardComponent session={session}/>
+    </>
+  );
+};
 
-export default Dashboard
+export default Dashboard;

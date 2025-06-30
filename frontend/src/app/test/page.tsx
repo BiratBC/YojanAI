@@ -236,6 +236,7 @@ const days = [
   "Sunday",
 ];
 
+// Get this /ml-algo/ocr_nlp/subject_list_processing
 const subjects = {
   "MATH 208": { credits: 3, color: "#fbbf24" },
   "ENG 111": { credits: 3, color: "#93c5fd" },

@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
-import SignUpButtonGithub from "../../components/SignUpButtonGithub";
-import SignUpButtonGoogle from "@/components/SignUpButtonGoogle";
+import {SignUpButtonGithub} from "../../components/SignUpButtonGithub";
+import {SignUpButtonGoogle} from "@/components/SignUpButtonGoogle";
 
 const Signup = () => {
   return (
