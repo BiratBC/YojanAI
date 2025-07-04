@@ -1,11 +1,9 @@
 import React from 'react'
 
-const Planner = () => {
+export default function page() {
   return (
     <div>
-      
+      <h1>planner page </h1>
     </div>
   )
 }
-
-export default Planner

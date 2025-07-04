@@ -143,11 +143,11 @@ const Connect = () => {
               <div className="flex justify-center">
                 <div className="bg-gradient-to-b rounded-xl w-80 h-64 flex items-center justify-center">
                   <Image
-                    src="/media/home_image.svg"
-                    alt="image"
-                    height={600}
-                    width={500}
-                  />
+                                    src="/media/Schedule.gif"
+                                    alt="Home Setup Illustration"
+                                    height={600}
+                                    width={500}
+                                  />
                 </div>
               </div>
             </div>

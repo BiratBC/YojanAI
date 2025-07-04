@@ -12,7 +12,7 @@ interface UploadState {
 }
 
 const UploadPage = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   
   const [uploads, setUploads] = useState<UploadState>({
     classRoutine: null,
@@ -37,22 +37,22 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-3">
       <div className="max-w-6xl w-full">
-        <div className="mb-8">
-          <Image src="/icons/logo.png" width={150} height={150} alt="logo" />
+        <div className="mb-3">
+          <Image src="/icons/logo.png" width={120} height={120} alt="logo" />
         </div>
         
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 relative">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 relative">
           {/* Header with User Icon */}
-          <div className="flex justify-end items-start mb-6">
-            <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
+          <div className="flex justify-end items-start mb-4">
+            <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
               {session?.user?.image ? (
                 <img
                   className="rounded-full"
                   src={session.user.image}
-                  height={48}
-                  width={48}
+                  height={40}
+                  width={40}
                   alt="user-profile"
                 />
               ) : (
@@ -63,9 +63,9 @@ const UploadPage = () => {
 
           <div className="grid md:grid-cols-2 gap-12 items-start">
             {/* Left Side - Upload Content */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <h1 className="text-4xl font-medium text-gray-800 mb-4">
+                <h1 className="text-3xl font-medium text-gray-800 mb-3">
                   Now, Upload your Class Routine and Subjects of your Semester
                 </h1>
               </div>
@@ -80,10 +80,10 @@ const UploadPage = () => {
                     </div>
                     
                     <div>
-                      <h3 className="font-medium text-gray-800 mb-1">
+                      <h3 className="font-medium text-gray-800 mb-2">
                         Upload your Class Routine
                       </h3>
-                      <p className="text-sm text-gray-500 mb-4">
+                      <p className="text-sm text-gray-500 mb-2">
                         Click here for sample
                       </p>
                     </div>
@@ -120,10 +120,10 @@ const UploadPage = () => {
                     </div>
                     
                     <div>
-                      <h3 className="font-medium text-gray-800 mb-1">
+                      <h3 className="font-medium text-gray-800 mb-2">
                         Upload your Subject List
                       </h3>
-                      <p className="text-sm text-gray-500 mb-4">
+                      <p className="text-sm text-gray-500 mb-2">
                         Click here for sample
                       </p>
                     </div>
@@ -155,53 +155,21 @@ const UploadPage = () => {
             </div>
 
             {/* Right Side - Visual Illustration */}
-            <div className="flex justify-center">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl p-8 w-full max-w-md">
-                <div className="text-white space-y-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center">
-                      <FileText className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Smart Document Processing</h3>
-                    <p className="opacity-90 text-sm">
-                      Upload your documents and we'll automatically extract your schedule and subjects
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                        <Upload className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm">Automatic data extraction</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                        <FileText className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm">Multiple format support</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                        <BookOpen className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm">Organized study plan</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Image
+              src="/media/Schedule.gif"
+              alt="Home Setup Illustration"
+              height={380}
+              width={380}
+            />
           </div>
 
           {/* Progress Bar */}
-          <div className="space-y-4 mt-8">
+          <div className="space-y-3 mt-6">
             <ProgressBar
               completed={80}
               animateOnRender
               customLabel=" "
-              height="10px"
+              height="8px"
               bgColor="#9333ea"
               baseBgColor="#e5e7eb"
             />
