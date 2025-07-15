@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { User, Clock, Calendar, BookOpen } from "lucide-react";
+import Link from "next/link";
 import Image from "next/image";
 import ProgressBar from "@ramonak/react-progress-bar";
 import { useSession } from "next-auth/react";
@@ -219,6 +220,7 @@ const PreferencesPage = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };
 

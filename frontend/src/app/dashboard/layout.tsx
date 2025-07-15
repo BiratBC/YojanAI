@@ -1,8 +1,8 @@
 "use client"
-
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
+import SessionWrapper from "@/components/SessionWrapper";
 
 export default function DashboardLayout({
   children,
@@ -306,19 +306,3 @@ export default function DashboardLayout({
     </div>
   )
 }
-
-import SessionWrapper from "@/components/SessionWrapper";
-
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <main className="">
-      {children}
-    </main>
-  );
-}
-

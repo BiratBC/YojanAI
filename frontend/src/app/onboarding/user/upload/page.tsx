@@ -6,11 +6,7 @@ import ProgressBar from "@ramonak/react-progress-bar";
 import { useSession } from "next-auth/react";
 import { UploadState } from "@/lib/types";
 
-const UploadPage = () => {
-
-  const { data: session } = useSession();
-  
-
+const UploadPage = () => {  
   const { data: session, status } = useSession();
   const [buttonEnabled, setButtonEnabled] = useState(false);
 
@@ -262,7 +258,8 @@ const UploadPage = () => {
         </div>
       </div>
     </div>
+  </div>
   );
-};
+}
 
 export default UploadPage;

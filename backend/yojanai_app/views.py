@@ -1,5 +1,8 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 import base64
 import json
 import requests
@@ -78,7 +81,7 @@ def create_google_event(access_token):
         "summary": "AI-generated schedule: Deep Work",
         "description": "2-hour deep work session",
         "start": {
-            "dateTime": "2025-06-07T10:00:00+05:45",  # Nepal time example
+            "dateTime": "2025-06-07T10:00:00+05:45",
             "timeZone": "Asia/Kathmandu"
         },
         "end": {
@@ -94,3 +97,22 @@ def create_google_event(access_token):
     else:
         print("Error:", response.json())
         return None
+
+from  .scheduler import WeeklyScheduler
+@api_view(['POST'])
+def weekly_sheduler(request):
+    try:
+        subjects = request.data.get('subjects', [])
+        if not subjects:
+            return Response({"error": "No subjects provided"}, status=400)
+
+        scheduler = WeeklyScheduler(subjects=subjects)
+        result = scheduler.solve_schedule()
+        if result:        
+            json_result = scheduler.schedule_to_json(result)
+            return Response({"message": "Schedule generated", "data": json_result})
+        else:
+            return Response({"message" : "Schedule generated", "data" : "Unable to generate schedule try again later"})
+    except Exception as e:
+        # Temporary: catch and see the error message
+        return Response({"error": str(e)}, status=500)
