@@ -1,7 +1,8 @@
 import React from 'react'
 import { Github } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { LoginButtonGithub } from '@/components/SignUpButtonGithub';
+import { LoginButtonGoogle } from '@/components/SignUpButtonGoogle';
 
 const Login = () => {
   return (
@@ -55,17 +56,9 @@ const Login = () => {
 
               {/* Sign up buttons */}
               <div className="space-y-3">
-                <Link href='/onboarding/user/welcome' className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 rounded-lg py-3 px-4 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-colors">
-                  <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-red-500 rounded text-white flex items-center justify-center text-sm font-bold">
-                    G
-                  </div>
-                  Agree & Sign up with Google
-                </Link>
+                <LoginButtonGoogle/>
                 
-                <Link href={'/api/auth/signin'} className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 rounded-lg py-3 px-4 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-colors">
-                  <Github className="w-6 h-6" />
-                  Agree & Sign up with Github
-                </Link>
+                <LoginButtonGithub/>
               </div>
             </div>
           </div>
