@@ -36,41 +36,41 @@ const PreferencesPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-6xl w-full">
-        <div className="mb-8">
-          <Image src="/icons/logo.png" width={150} height={150} alt="logo" />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-3">
+      <div className="max-w-5xl w-full">
+        <div className="mb-4">
+          <Image src="/icons/logo.png" width={120} height={120} alt="logo" />
         </div>
         
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 relative">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 relative">
           {/* Header with User Icon */}
-          <div className="flex justify-end items-start mb-6">
-            <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
+          <div className="flex justify-end items-start mb-4">
+            <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
               {session?.user?.image ? (
                 <img
                   className="rounded-full"
                   src={session.user.image}
-                  height={48}
-                  width={48}
+                  height={40}
+                  width={40}
                   alt="user-profile"
                 />
               ) : (
-                <User className="w-6 h-6 text-white" />
+                <User className="w-5 h-5 text-white" />
               )}
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12 items-start">
+          <div className="grid md:grid-cols-2 gap-8 items-start">
             {/* Left Side - Form Content */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <h1 className="text-4xl font-medium text-gray-800 mb-4">
+                <h1 className="text-3xl font-medium text-gray-800 mb-3">
                   How about you tell us your study preference?
                 </h1>
               </div>
 
               {/* Form Fields */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Estimated total hours per week */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -90,7 +90,7 @@ const PreferencesPage = () => {
 
                 {/* Split your Study session */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Split your Study session
                   </label>
                   <div className="grid grid-cols-2 gap-4">
@@ -129,7 +129,7 @@ const PreferencesPage = () => {
 
                 {/* Ideal times of day for study */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Ideal times of day for study (Optional)
                   </label>
                   <div className="relative">
@@ -156,56 +156,39 @@ const PreferencesPage = () => {
 
             {/* Right Side - Visual Illustration */}
             <div className="flex justify-center">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl p-8 w-full max-w-md">
-                <div className="text-white space-y-6">
-                  <div className="text-center">
-                    <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-80" />
-                    <h3 className="text-xl font-semibold mb-2">Personalized Study Plan</h3>
-                    <p className="opacity-90 text-sm">
-                      We'll create a custom study schedule based on your preferences
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                        <Clock className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm">Optimal study sessions</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                        <Calendar className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm">Smart scheduling</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                        <BookOpen className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm">Better focus & retention</span>
-                    </div>
-                  </div>
-                </div>
+              <div className="bg-gradient-to-b rounded-xl p-2 mb-3">
+                <Image
+                  src="/media/Schedule.gif"
+                  alt="Home Setup Illustration"
+                  height={380}
+                  width={380}
+                />
               </div>
             </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="space-y-4 mt-8">
+          <div className="space-y-3 mt-6">
             <ProgressBar
               completed={60}
               animateOnRender
               customLabel=" "
-              height="10px"
+              height="8px"
               bgColor="#9333ea"
               baseBgColor="#e5e7eb"
             />
           </div>
 
           {/* Continue Button */}
+
+          <div className="flex justify-end mt-4">
+            <Link
+              href="/onboarding/user/upload"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-6 rounded-xl transition-colors"
+            >
+              Continue
+            </Link>
+
           <div className="flex justify-end mt-8">
             {buttonEnabled ? (
               <>
@@ -231,6 +214,7 @@ const PreferencesPage = () => {
                 </button>
               </>
             )}
+
           </div>
         </div>
       </div>
