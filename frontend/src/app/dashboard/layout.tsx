@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
 import SessionWrapper from "@/components/SessionWrapper";
+import { logout } from '@/lib/actions/auth';
 
 export default function DashboardLayout({
   children,
@@ -11,9 +12,13 @@ export default function DashboardLayout({
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-
+  const [isGoogleCalendarConnected, setIsGoogleCalendarConnected] = useState(false);
   // Close dropdown when clicking outside
   useEffect(() => {
+    const calendarToken = localStorage.getItem("google_access_token")
+    if (calendarToken) {
+      setIsGoogleCalendarConnected(true);
+    }
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
@@ -157,7 +162,7 @@ export default function DashboardLayout({
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                   <Link 
-                    href="/dashboard/profile"
+                    href="/user/profile"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                     onClick={() => setIsDropdownOpen(false)}
                   >
@@ -165,7 +170,7 @@ export default function DashboardLayout({
                   </Link>
                   <hr className="my-1 border-gray-200" />
                   <Link 
-                    href="/dashboard/settings"
+                    href="/user/settings"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                     onClick={() => setIsDropdownOpen(false)}
                   >
@@ -182,7 +187,7 @@ export default function DashboardLayout({
                   <button 
                     onClick={() => {
                       setIsDropdownOpen(false)
-                      // Add your logout logic here
+                      logout()
                       console.log('Logout clicked')
                     }}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -264,6 +269,7 @@ export default function DashboardLayout({
 
             {/* Scrollable Content Area */}
             <div className="flex-1 px-4 py-4 overflow-y-auto">
+              {!isGoogleCalendarConnected ? <>
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-4">
                   Connect to Google Calendar to view and manage your tasks
@@ -275,6 +281,21 @@ export default function DashboardLayout({
                   <span className="text-sm font-medium">Connect Google Calendar</span>
                 </button>
               </div>
+              </> : <>
+              <div className="text-center">
+                <p className="text-sm text-gray-600 mb-4">
+                  Sync your current schedule with Google Calendar
+                </p>
+                <button className="w-full flex items-center justify-center space-x-2 bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-sm font-medium">Sync with Google Calendar</span>
+                </button>
+              </div>
+              
+              </>}
+              
               
               {/* Add more content here to test scrolling in right sidebar */}
               <div className="mt-8 space-y-4">
