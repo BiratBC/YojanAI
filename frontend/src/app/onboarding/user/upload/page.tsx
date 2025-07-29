@@ -5,6 +5,7 @@ import Image from "next/image";
 import ProgressBar from "@ramonak/react-progress-bar";
 import { useSession } from "next-auth/react";
 import { UploadState } from "@/lib/types";
+import { uploadFileToStorage } from "@/lib/helpers";
 
 const UploadPage = () => {  
   const { data: session, status } = useSession();
@@ -33,6 +34,24 @@ const UploadPage = () => {
     const input = document.getElementById(inputId) as HTMLInputElement;
     input?.click();
   };
+
+  const handleContinue = async () => {
+  if (!session?.user?.email) return;
+
+  // Upload classRoutine
+  if (uploads.classRoutine) {
+    await uploadFileToStorage(uploads.classRoutine, "classRoutine", session.user.email);
+  }
+
+  // Upload subjectList
+  if (uploads.subjectList) {
+    await uploadFileToStorage(uploads.subjectList, "subjectList", session.user.email);
+  }
+
+  // Continue to next page
+  window.location.href = "/onboarding/user/preferences";
+};
+
 
   useEffect(() => {
     if (uploads.classRoutine !== null && uploads.subjectList !== null) {
@@ -234,6 +253,7 @@ const UploadPage = () => {
               <>
                 <button
                   onClick={() => {
+                    handleContinue()
                     window.location.href = "/onboarding/user/preferences";
                   }}
                   className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors cursor-pointer"

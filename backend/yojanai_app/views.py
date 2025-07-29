@@ -11,6 +11,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 import os
 from dotenv import load_dotenv
+from supabase import create_client, Client
+from .subjectlistextractor import SubjectListExtraction
+from  .scheduler import WeeklyScheduler
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+
 
 load_dotenv()
 
@@ -98,7 +105,7 @@ def create_google_event(access_token):
         print("Error:", response.json())
         return None
 
-from  .scheduler import WeeklyScheduler
+
 @api_view(['POST'])
 def weekly_sheduler(request):
     try:
@@ -116,3 +123,45 @@ def weekly_sheduler(request):
     except Exception as e:
         # Temporary: catch and see the error message
         return Response({"error": str(e)}, status=500)
+    
+
+# Subject List Extractor Endpoint
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+@api_view(['GET'])
+def subject_extractor(request):
+    email = request.GET.get("email")
+    if not email:
+        return JsonResponse({"error": "Email not provided"}, status=400)
+
+    file_path = f"{email}/subjectList.png"  # or .jpg/.pdf etc based on how you store
+
+    try:
+        # Get signed URL to download the file
+        signed_url_data = supabase.storage.from_("user_docs").create_signed_url(file_path, 60)
+        signed_url = signed_url_data.get("signedURL")
+
+        if not signed_url:
+            return JsonResponse({"error": "Could not get signed URL"}, status=404)
+
+        # Download file to temp location
+        response = requests.get(signed_url)
+        if response.status_code != 200:
+            return JsonResponse({"error": "Failed to download file from Supabase"}, status=500)
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
+            temp_file.write(response.content)
+            temp_file_path = temp_file.name
+
+        # Process image using your OCR class
+        extractor = SubjectListExtraction(temp_file_path)
+        extractor.image_pre_processing()
+        extracted_json = extractor.create_json_format()
+
+        # Clean up temp file
+        os.remove(temp_file_path)
+
+        return JsonResponse({"data": extracted_json}, safe=False)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+    

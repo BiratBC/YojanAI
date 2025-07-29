@@ -15,3 +15,9 @@ export interface Preferences {
   breakDuration: string;
   preferredTime: string;
 }
+export type SessionUser = {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  is_verified?: boolean;
+};

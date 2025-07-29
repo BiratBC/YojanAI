@@ -195,7 +195,7 @@ const PreferencesPage = () => {
               <>
                 <button
                   onClick={() => {
-                    window.location.href = "/dashboard";
+                    window.location.href = "/onboarding/user/finishSetup";
                   }}
                   className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors cursor-pointer"
                 >
@@ -207,7 +207,7 @@ const PreferencesPage = () => {
                 <button
                   disabled
                   onClick={() => {
-                    window.location.href = "/dashboard";
+                    window.location.href = "/onboarding/user/finishSetup";
                   }}
                   className="bg-gray-400 text-white font-medium py-3 px-8 rounded-xl transition-colors cursor-not-allowed"
                 >

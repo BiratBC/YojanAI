@@ -1,3 +1,5 @@
+
+import supabase from "@/lib/supabaseClient";
 export const createGoogleCalendarEvent = async () => {
     const accessToken = localStorage.getItem("google_access_token"); // Or from wherever you store it
     if (!accessToken) {
@@ -44,3 +46,28 @@ export const createGoogleCalendarEvent = async () => {
       console.error("Error creating event:", err);
     }
   };
+
+export const uploadFileToStorage = async (
+  file: File,
+  type: "classRoutine" | "subjectList",
+  userEmail: string
+) => {
+  const fileExt = file.name.split(".").pop();
+  const filePath = `${userEmail}/${type}.${fileExt}`;
+
+  const { data, error } = await supabase.storage
+    .from("user_docs")
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: true,
+      contentType: file.type,
+    });
+
+  if (error) {
+    console.error("Upload error:", error);
+    return null;
+  }
+
+  return data.path;
+};
+

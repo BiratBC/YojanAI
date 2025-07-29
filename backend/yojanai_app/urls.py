@@ -7,6 +7,7 @@ urlpatterns = [
     path('notion/exchange-code/', views.notion_token_exchange),
     path('google/exchange-code/', views.exchange_code),
     path('google/create-event/', views.create_google_event),
-    path('schedule/',views.weekly_sheduler)
+    path('schedule/',views.weekly_sheduler),
+    path('extract-subject-list/', views.subject_extractor)
 
 ]

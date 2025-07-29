@@ -1,169 +1,464 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useState, useRef, useEffect } from "react";
 import { logout } from "@/lib/actions/auth";
-import { Button } from "./ui/button";
+import { useSession, signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { SessionUser } from "@/lib/types";
 
-const Dashboard = ({ session }: any) => {
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 4, 1));
-  const [subjects, setSubjects] = useState([
-     { "subject": "Math", "credits": 3, "color": "#FFA07A" },
-    { "subject": "Physics", "credits": 4, "color": "#87CEFA" }
-  ]);
-
-  const [data, setData] = useState({
-    message: "",
-    data: "",
-  });
-
-  const formatMonthYear = (date: Date) => {
-    return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-  };
-
-  const navigateMonth = (direction: "prev" | "next") => {
-    setCurrentDate((prev) => {
-      const newDate = new Date(prev);
-      if (direction === "prev") {
-        newDate.setMonth(prev.getMonth() - 1);
-      } else {
-        newDate.setMonth(prev.getMonth() + 1);
-      }
-      return newDate;
-    });
-  };
-
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:8000/dashboard/schedule/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          subjects,
-        }),
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text(); // read raw HTML or error
-        console.error("Server error:", errorText);
-        return;
-      }
-
-      const data = await res.json(); // Only parse JSON if ok
-      console.log("Success:", data);
-      setData(data)
-    } catch (err: any) {
-      console.error("Fetch error:", err.message);
+interface DashboardProps {
+  children?: React.ReactNode;
+}
+const Dashboard: React.FC<DashboardProps> = ({ children }) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [isGoogleCalendarConnected, setIsGoogleCalendarConnected] =
+    useState(false);
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const calendarToken = localStorage.getItem("google_access_token");
+    if (status === "loading") return;
+    if (!session) {
+        console.log("this is session",session)
+      signIn();
+    } else if (!(session.user as SessionUser)?.is_verified) {
+        console.log("sesson", session);
+        
+      router.replace("/onboarding/user/welcome");
     }
-  };
+    if (calendarToken) {
+      setIsGoogleCalendarConnected(true);
+    }
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    }
 
-  const timeSlots = [
-    "7am",
-    "8am",
-    "9am",
-    "10am",
-    "11am",
-    "12pm",
-    "1pm",
-    "2pm",
-    "3pm",
-    "4pm",
-  ];
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [session, status]);
 
-  const weekDays = [
-    "Sun 25",
-    "Mon 26",
-    "Tue 27",
-    "Wed 28",
-    "Thu 29",
-    "Fri 30",
-    "Sat 31",
-  ];
   return (
     <>
-      <h1>{data?.data}</h1>
-      <div className="h-full overflow-y-auto">
-        <div className="p-6">
-          <Button onClick={handleSubmit}>Submit Subjects</Button>
-          {/* Month Navigation */}
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-semibold text-gray-800">
-              {formatMonthYear(currentDate)}
-            </h1>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => navigateMonth("prev")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+      <div className="h-screen bg-gray-800 flex overflow-hidden">
+        {/* Left Sidebar - Fixed */}
+        <div className="w-56 bg-gray-50 flex flex-col flex-shrink-0">
+          {/* Logo Section */}
+          <div className="px-6 py-8 flex items-center justify-center">
+            <Image
+              src="/icons/logo.png"
+              alt="Yojana Logo"
+              width={100}
+              height={80}
+              className="object-contain"
+            />
+          </div>
+
+          {/* Navigation Menu in Dark Box */}
+          <div className="mx-4 mb-4 bg-gray-700 rounded-lg overflow-hidden flex-grow flex flex-col">
+            <nav className="py-4 flex-1 overflow-y-auto">
+              <ul className="space-y-1">
+                <li>
+                  <Link
+                    href="/dashboard/planner"
+                    className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
+                  >
+                    Semester Planner
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/assignments"
+                    className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
+                  >
+                    Update / Reschedule
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/assignments"
+                    className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
+                  >
+                    All Assignments
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/workspace"
+                    className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
+                  >
+                    Notion Workspace
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/subject-list"
+                    className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
+                  >
+                    Subject List
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/calendar"
+                    className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
+                  >
+                    Calendar
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/routine"
+                    className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
+                  >
+                    Class Routine
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+
+            {/* Help at bottom of dark box */}
+            <div className="px-4 pb-4 flex-shrink-0">
+              <Link
+                href="/dashboard/help"
+                className="block px-0 py-3 text-sm text-gray-300 hover:text-white transition-colors"
               >
-                <ChevronLeft className="w-5 h-5 text-gray-600" />
-              </button>
-              <button
-                onClick={() => navigateMonth("next")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-600" />
-              </button>
+                Help
+              </Link>
             </div>
           </div>
 
-          {/* Weekly Calendar View */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            {/* Week Days Header */}
-            <div className="grid grid-cols-8 border-b border-gray-200">
-              <div className="p-4 border-r border-gray-200"></div>
-              {weekDays.map((day, index) => (
-                <div
-                  key={index}
-                  className="p-4 text-center border-r border-gray-200 last:border-r-0"
+          {/* Bottom N button */}
+          <div className="px-4 pb-4 flex-shrink-0">
+            <div className="w-8 h-8 bg-gray-600 rounded flex items-center justify-center">
+              <span className="text-white text-sm font-medium">N</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 bg-white flex flex-col min-w-0">
+          {/* Top Header - Fixed */}
+          <header className="bg-white px-6 py-4 flex items-center justify-between border-b border-gray-200 flex-shrink-0">
+            <div className="flex items-center"></div>
+
+            <div className="flex items-center space-x-4">
+              <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <div className="text-sm font-medium text-gray-700">
-                    {day.split(" ")[0]}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span>New Task</span>
+              </button>
+
+              <button className="p-2 text-gray-500 hover:text-gray-700 rounded">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </button>
+
+              {/* User Avatar with Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center hover:bg-purple-700 transition-colors"
+                >
+                  <span className="text-white text-sm font-semibold">U</span>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <Link
+                      href="/user/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <hr className="my-1 border-gray-200" />
+                    <Link
+                      href="/user/settings"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      Setting
+                    </Link>
+                    <Link
+                      href="/dashboard/faqs"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      FAQs
+                    </Link>
+                    <hr className="my-1 border-gray-200" />
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        logout();
+                        console.log("Logout clicked");
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      Logout
+                    </button>
                   </div>
-                  <div className="text-lg font-semibold text-gray-900 mt-1">
-                    {day.split(" ")[1]}
+                )}
+              </div>
+            </div>
+          </header>
+
+          <div className="flex-1 flex min-h-0">
+            <main className="flex-1 bg-gray-50 overflow-y-auto">
+              {children}
+            </main>
+
+            {/* Right Sidebar - Fixed */}
+            <div className="w-80 bg-white border-l border-gray-200 flex flex-col flex-shrink-0">
+              {/* Right Header with controls - Fixed */}
+              <div className="px-4 py-4 border-b border-gray-200 flex-shrink-0">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <button className="p-1 hover:bg-gray-100 rounded">
+                      <svg
+                        className="w-4 h-4 text-gray-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 19l-7-7 7-7"
+                        />
+                      </svg>
+                    </button>
+                    <button className="p-1 hover:bg-gray-100 rounded">
+                      <svg
+                        className="w-4 h-4 text-gray-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </button>
+                    <button className="p-1 hover:bg-gray-100 rounded">
+                      <svg
+                        className="w-4 h-4 text-gray-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    </button>
+                    <button className="p-1 hover:bg-gray-100 rounded">
+                      <svg
+                        className="w-4 h-4 text-gray-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </button>
+                    <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-800">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span className="text-sm">Help</span>
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Time Slots and Calendar Grid */}
-            <div className="grid grid-cols-8">
-              {/* Time Column */}
-              <div className="border-r border-gray-200">
-                {timeSlots.map((time, index) => (
-                  <div
-                    key={index}
-                    className="h-20 px-4 py-2 border-b border-gray-100 last:border-b-0"
-                  >
-                    <span className="text-sm text-gray-600">{time}</span>
-                  </div>
-                ))}
+                {/* Priorities/Tasks tabs */}
+                <div className="flex border-b border-gray-200">
+                  <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 border-b-2 border-transparent hover:border-gray-300">
+                    Priorities
+                  </button>
+                  <button className="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+                    Tasks
+                  </button>
+                </div>
               </div>
 
-              {/* Calendar Days */}
-              {weekDays.map((day, dayIndex) => (
-                <div
-                  key={dayIndex}
-                  className="border-r border-gray-200 last:border-r-0"
-                >
-                  {timeSlots.map((time, timeIndex) => (
-                    <div
-                      key={`${dayIndex}-${timeIndex}`}
-                      className="h-20 border-b border-gray-100 last:border-b-0 p-1 hover:bg-gray-50 transition-colors cursor-pointer"
-                    >
-                      {/* This is where assignments would be rendered if they existed */}
-                    </div>
-                  ))}
+              {/* Search bar - Fixed */}
+              <div className="px-4 py-3 flex-shrink-0">
+                <div className="relative">
+                  <svg
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Search for something..."
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {/* Optional: Add some helper text or additional controls */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-500 text-sm">
-              Click on any time slot to add an assignment or task
-            </p>
+              {/* Scrollable Content Area */}
+              <div className="flex-1 px-4 py-4 overflow-y-auto">
+                {!isGoogleCalendarConnected ? (
+                  <>
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600 mb-4">
+                        Connect to Google Calendar to view and manage your tasks
+                      </p>
+                      <button className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium">
+                          Connect Google Calendar
+                        </span>
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600 mb-4">
+                        Sync your current schedule with Google Calendar
+                      </p>
+                      <button className="w-full flex items-center justify-center space-x-2 bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium">
+                          Sync with Google Calendar
+                        </span>
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* Add more content here to test scrolling in right sidebar */}
+                <div className="mt-8 space-y-4">
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium text-gray-900">Sample Task 1</h4>
+                    <p className="text-sm text-gray-600">
+                      Complete assignment due tomorrow
+                    </p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium text-gray-900">Sample Task 2</h4>
+                    <p className="text-sm text-gray-600">
+                      Study for upcoming exam
+                    </p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium text-gray-900">Sample Task 3</h4>
+                    <p className="text-sm text-gray-600">
+                      Prepare presentation
+                    </p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium text-gray-900">Sample Task 4</h4>
+                    <p className="text-sm text-gray-600">
+                      Review lecture notes
+                    </p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium text-gray-900">Sample Task 5</h4>
+                    <p className="text-sm text-gray-600">
+                      Submit project proposal
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
