@@ -11,6 +11,7 @@ export interface UploadState {
 
 export interface Preferences {
   totalHours: string;
+  classTime : string;
   studyDuration: string;
   breakDuration: string;
   preferredTime: string;
@@ -21,3 +22,8 @@ export type SessionUser = {
   image?: string | null;
   is_verified?: boolean;
 };
+
+export type fileURLS = {
+  classRoutine: string | null;
+  subjectList: string | null;
+}

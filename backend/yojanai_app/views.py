@@ -9,17 +9,17 @@ import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from .subjectlistextractor import SubjectListExtraction
 from  .scheduler import WeeklyScheduler
-
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-
-
+import tempfile
 load_dotenv()
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 REDIRECT_URI = "http://localhost:3000/onboarding/user/connect"
 
@@ -126,42 +126,60 @@ def weekly_sheduler(request):
     
 
 # Subject List Extractor Endpoint
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-@api_view(['GET'])
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+@csrf_exempt
+@require_http_methods(["GET"])
 def subject_extractor(request):
     email = request.GET.get("email")
     if not email:
-        return JsonResponse({"error": "Email not provided"}, status=400)
+        return _cors(JsonResponse({"error": "Email parameter is required"}, status=400))
 
-    file_path = f"{email}/subjectList.png"  # or .jpg/.pdf etc based on how you store
+    sanitized_email = email.replace("@", "_").replace(".", "_")
+    file_path = f"{sanitized_email}/subjectList.png"
 
+    # Try to generate signed or public URL
+    signed_url = None
     try:
-        # Get signed URL to download the file
-        signed_url_data = supabase.storage.from_("user_docs").create_signed_url(file_path, 60)
-        signed_url = signed_url_data.get("signedURL")
+        signed_resp = supabase.storage.from_("userdocs").create_signed_url(file_path, 60)
+        signed_url = signed_resp.get("signedURL") or signed_resp.get("signed_url") or signed_resp.get("url")
+    except Exception:
+        try:
+            public_resp = supabase.storage.from_("userdocs").get_public_url(file_path)
+            signed_url = public_resp.get("publicURL") or public_resp.get("public_url") or public_resp.get("url")
+        except Exception as e:
+            return _cors(JsonResponse({"error": f"Unable to get file URL: {str(e)}"}, status=500))
 
-        if not signed_url:
-            return JsonResponse({"error": "Could not get signed URL"}, status=404)
+    if not signed_url:
+        return _cors(JsonResponse({"error": "Could not generate file URL"}, status=500))
 
-        # Download file to temp location
-        response = requests.get(signed_url)
-        if response.status_code != 200:
-            return JsonResponse({"error": "Failed to download file from Supabase"}, status=500)
+    # Download the image
+    try:
+        r = requests.get(signed_url, stream=True)
+        if r.status_code != 200:
+            return _cors(JsonResponse({"error": "File not accessible", "status_code": r.status_code}, status=500))
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
-            temp_file.write(response.content)
+            for chunk in r.iter_content(chunk_size=8192):
+                temp_file.write(chunk)
             temp_file_path = temp_file.name
+    except Exception as e:
+        return _cors(JsonResponse({"error": f"Error downloading file: {str(e)}"}, status=500))
 
-        # Process image using your OCR class
+    # Run OCR
+    try:
         extractor = SubjectListExtraction(temp_file_path)
         extractor.image_pre_processing()
         extracted_json = extractor.create_json_format()
-
-        # Clean up temp file
-        os.remove(temp_file_path)
-
-        return JsonResponse({"data": extracted_json}, safe=False)
-
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
-    
+        os.remove(temp_file_path)
+        return _cors(JsonResponse({"error": f"OCR failed: {str(e)}"}, status=500))
+
+    os.remove(temp_file_path)
+    return _cors(JsonResponse({"data": extracted_json}, safe=False))
+
+
+# Helper to add CORS headers to any response
+def _cors(response):
+    response["Access-Control-Allow-Origin"] = "http://localhost:3000"
+    response["Access-Control-Allow-Credentials"] = "true"
+    return response

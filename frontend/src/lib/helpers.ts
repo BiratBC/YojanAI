@@ -52,22 +52,49 @@ export const uploadFileToStorage = async (
   type: "classRoutine" | "subjectList",
   userEmail: string
 ) => {
-  const fileExt = file.name.split(".").pop();
-  const filePath = `${userEmail}/${type}.${fileExt}`;
+  try {
+    // Get file extension, default to 'bin' if none found
+    const fileExt = file.name.split(".").pop() || 'bin';
+    
+    // Sanitize email for use in file path (replace @ and . with _)
+    const sanitizedEmail = userEmail.replace(/[@.]/g, '_');
+    
+    // Create unique file path
+    const filePath = `${sanitizedEmail}/${type}.${fileExt}`;
+    
+    console.log(`Attempting to upload ${type} to path: ${filePath}`);
+    
+    const { data, error } = await supabase.storage
+      .from("userdocs")
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: true,
+        contentType: file.type,
+      });
 
+    if (error) {
+      console.error(`Upload error for ${type}:`, error);
+      throw new Error(`Failed to upload ${type}: ${error.message}`);
+    }
+
+    console.log(`Successfully uploaded ${type}:`, data.path);
+    return data.path;
+    
+  } catch (error) {
+    console.error(`Exception during ${type} upload:`, error);
+    return null;
+  }
+};
+
+export const getSignedFileUrl = async (filePath : any) => {
   const { data, error } = await supabase.storage
-    .from("user_docs")
-    .upload(filePath, file, {
-      cacheControl: "3600",
-      upsert: true,
-      contentType: file.type,
-    });
+    .from("userdocs")
+    .createSignedUrl(filePath, 3600); // 1 hour expiry
 
   if (error) {
-    console.error("Upload error:", error);
+    console.error("Error creating signed URL:", error);
     return null;
   }
 
-  return data.path;
+  return data.signedUrl;
 };
-

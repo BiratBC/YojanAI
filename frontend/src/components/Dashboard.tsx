@@ -118,7 +118,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                 </li>
                 <li>
                   <Link
-                    href="/dashboard/routine"
+                    href="/dashboard/class-routine"
                     className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
                   >
                     Class Routine
