@@ -1,21 +1,15 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Clock, Calendar, BookOpen } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import ProgressBar from "@ramonak/react-progress-bar";
 import { useSession } from "next-auth/react";
-
-// Define types for preferences
-interface Preferences {
-  totalHours: string;
-  studyDuration: string;
-  breakDuration: string;
-  preferredTime: string;
-}
+import { Preferences } from "@/lib/types";
 
 const PreferencesPage = () => {
   const { data: session, status } = useSession();
+  const [buttonEnabled, setButtonEnabled] = useState(false);
+  const timeOptions = ["None", "Morning", "Afternoon", "Evening", "Night"]; 
   
   // Form state with proper typing
   const [preferences, setPreferences] = useState<Preferences>({
@@ -33,7 +27,13 @@ const PreferencesPage = () => {
     }));
   };
 
-  const timeOptions = ["None", "Morning", "Afternoon", "Evening", "Night"];
+  useEffect(() => {
+    if (preferences.totalHours !== "" && preferences.studyDuration !== "" && preferences.breakDuration !== ""){
+      setButtonEnabled(true)
+    }
+  }, [preferences])
+  
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-3">
@@ -180,6 +180,7 @@ const PreferencesPage = () => {
           </div>
 
           {/* Continue Button */}
+
           <div className="flex justify-end mt-4">
             <Link
               href="/onboarding/user/upload"
@@ -187,6 +188,33 @@ const PreferencesPage = () => {
             >
               Continue
             </Link>
+
+          <div className="flex justify-end mt-8">
+            {buttonEnabled ? (
+              <>
+                <button
+                  onClick={() => {
+                    window.location.href = "/dashboard";
+                  }}
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors cursor-pointer"
+                >
+                  Continue
+                </button>{" "}
+              </>
+            ) : (
+              <>
+                <button
+                  disabled
+                  onClick={() => {
+                    window.location.href = "/dashboard";
+                  }}
+                  className="bg-gray-400 text-white font-medium py-3 px-8 rounded-xl transition-colors cursor-not-allowed"
+                >
+                  Continue
+                </button>
+              </>
+            )}
+
           </div>
         </div>
       </div>

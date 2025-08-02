@@ -1,40 +1,48 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Upload, FileText, BookOpen } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import ProgressBar from "@ramonak/react-progress-bar";
 import { useSession } from "next-auth/react";
-
-interface UploadState {
-  classRoutine: File | null;
-  subjectList: File | null;
-}
+import { UploadState } from "@/lib/types";
 
 const UploadPage = () => {
+
   const { data: session } = useSession();
   
+
+  const { data: session, status } = useSession();
+  const [buttonEnabled, setButtonEnabled] = useState(false);
+
   const [uploads, setUploads] = useState<UploadState>({
     classRoutine: null,
-    subjectList: null
+    subjectList: null,
   });
 
   const handleFileUpload = (type: keyof UploadState, file: File | null) => {
-    setUploads(prev => ({
+    setUploads((prev) => ({
       ...prev,
-      [type]: file
+      [type]: file,
     }));
   };
 
-  const handleFileInputChange = (type: keyof UploadState) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    handleFileUpload(type, file);
-  };
+  const handleFileInputChange =
+    (type: keyof UploadState) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0] || null;
+      handleFileUpload(type, file);
+    };
 
   const triggerFileInput = (inputId: string) => {
     const input = document.getElementById(inputId) as HTMLInputElement;
     input?.click();
   };
+
+  useEffect(() => {
+    if (uploads.classRoutine !== null && uploads.subjectList !== null) {
+      setButtonEnabled(true);
+    }
+  }, [uploads]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-3">
@@ -42,8 +50,13 @@ const UploadPage = () => {
         <div className="mb-3">
           <Image src="/icons/logo.png" width={120} height={120} alt="logo" />
         </div>
+
         
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 relative">
+
+
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 relative">
+
           {/* Header with User Icon */}
           <div className="flex justify-end items-start mb-4">
             <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
@@ -78,7 +91,7 @@ const UploadPage = () => {
                     <div className="flex justify-center">
                       <FileText className="w-12 h-12 text-gray-400" />
                     </div>
-                    
+
                     <div>
                       <h3 className="font-medium text-gray-800 mb-2">
                         Upload your Class Routine
@@ -89,7 +102,7 @@ const UploadPage = () => {
                     </div>
 
                     <button
-                      onClick={() => triggerFileInput('classRoutineInput')}
+                      onClick={() => triggerFileInput("classRoutineInput")}
                       className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium"
                     >
                       <Upload className="w-4 h-4" />
@@ -100,7 +113,7 @@ const UploadPage = () => {
                       id="classRoutineInput"
                       type="file"
                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      onChange={handleFileInputChange('classRoutine')}
+                      onChange={handleFileInputChange("classRoutine")}
                       className="hidden"
                     />
 
@@ -118,7 +131,7 @@ const UploadPage = () => {
                     <div className="flex justify-center">
                       <BookOpen className="w-12 h-12 text-gray-400" />
                     </div>
-                    
+
                     <div>
                       <h3 className="font-medium text-gray-800 mb-2">
                         Upload your Subject List
@@ -129,7 +142,7 @@ const UploadPage = () => {
                     </div>
 
                     <button
-                      onClick={() => triggerFileInput('subjectListInput')}
+                      onClick={() => triggerFileInput("subjectListInput")}
                       className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium"
                     >
                       <Upload className="w-4 h-4" />
@@ -140,7 +153,7 @@ const UploadPage = () => {
                       id="subjectListInput"
                       type="file"
                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      onChange={handleFileInputChange('subjectList')}
+                      onChange={handleFileInputChange("subjectList")}
                       className="hidden"
                     />
 
@@ -155,12 +168,56 @@ const UploadPage = () => {
             </div>
 
             {/* Right Side - Visual Illustration */}
+
             <Image
               src="/media/Schedule.gif"
               alt="Home Setup Illustration"
               height={380}
               width={380}
             />
+
+            <div className="flex justify-center">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl p-8 w-full max-w-md">
+                <div className="text-white space-y-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center">
+                      <FileText className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">
+                      Smart Document Processing
+                    </h3>
+                    <p className="opacity-90 text-sm">
+                      Upload your documents and we'll automatically extract your
+                      schedule and subjects
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        <Upload className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm">Automatic data extraction</span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm">Multiple format support</span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        <BookOpen className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm">Organized study plan</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           {/* Progress Bar */}
@@ -178,7 +235,7 @@ const UploadPage = () => {
           {/* Continue Button */}
           <div className="flex justify-end mt-8">
             <Link
-              href="/onboarding/user/finish-setup"
+              href="/dashboard"
               className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors"
             >
               Continue

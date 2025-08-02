@@ -54,11 +54,19 @@ const Connect = () => {
   }
 
   // Handle Google Calendar
-  if (googleAccessToken) {
-    console.log("Google Access Token:", googleAccessToken);
-    localStorage.setItem("google_access_token", googleAccessToken);
-    setCalendarToken(googleAccessToken);
-  }
+   if (googleAccessToken) {
+      console.log("Google Access Token:", googleAccessToken);
+      localStorage.setItem("google_access_token", googleAccessToken);
+      setCalendarToken(googleAccessToken);
+    } else {
+      console.log("No access token found in URL.");
+    }
+
+    // Enable button if notion and calendar both are connected
+    if (localStorage.getItem("google_access_token") != undefined && localStorage.getItem("notion_access_token") != undefined) {
+      setButtonEnable(true)
+    }
+    console.log(buttonEnable);
 }, []);
 
 
