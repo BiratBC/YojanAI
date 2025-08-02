@@ -178,7 +178,7 @@ const UploadPage = () => {
           {/* Continue Button */}
           <div className="flex justify-end mt-8">
             <Link
-              href="/dashboard"
+              href="/onboarding/user/finish-setup"
               className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors"
             >
               Continue

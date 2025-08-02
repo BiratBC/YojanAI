@@ -3,6 +3,8 @@
 import React from "react";
 import Image from "next/image";
 import { User } from "lucide-react";
+import Link from "next/link";
+import Router from "next/router";
 
 const FinishSetup: React.FC = () => {
   const session: any = null; // Replace with actual session object
@@ -10,7 +12,8 @@ const FinishSetup: React.FC = () => {
   const handleFinish = () => {
     console.log("Setup completed");
     // Navigate to dashboard or next page if needed
-    // router.push('/dashboard')
+     //router.push('/dashboard')
+    
   };
 
   return (
