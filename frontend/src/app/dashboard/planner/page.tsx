@@ -1,9 +1,15 @@
-import React from 'react'
+import React from 'react';
+import Planner from "@/components/Planner";
 
-export default function page() {
+
+const Dashboard = async () => {
   return (
-    <div>
-      <h1>planner page </h1>
-    </div>
-  )
-}
+    <>
+    <Planner/>
+
+    </>
+  );
+};
+
+export default Dashboard;
+

@@ -3,19 +3,30 @@
 import React from "react";
 import Image from "next/image";
 import { User } from "lucide-react";
-import Link from "next/link";
-import Router from "next/router";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import supabase from "@/lib/supabaseClient";
+
 
 const FinishSetup: React.FC = () => {
-  const session: any = null; // Replace with actual session object
+  const { data: session } = useSession();
+  const router = useRouter();
 
-  const handleFinish = () => {
-    console.log("Setup completed");
-    // Navigate to dashboard or next page if needed
-     //router.push('/dashboard')
-    
+  const handleCompleteSetup = async () => {
+    if (!session?.user?.email) return;
+
+    const { error } = await supabase
+      .from("users")
+      .update({ is_verified: true })
+      .eq("email", session.user.email);
+
+    if (error) {
+      console.error("Error updating is_verified:", error);
+      return;
+    }
+    await fetch("/api/auth/session?update");
+    router.push("/dashboard/planner");
   };
-
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-3">
       <div className="max-w-6xl w-full">
@@ -72,7 +83,7 @@ const FinishSetup: React.FC = () => {
           {/* Finish Button */}
           <div className="flex justify-end mt-8">
             <button
-              onClick={handleFinish}
+              onClick={handleCompleteSetup}
               className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors"
             >
               Finish

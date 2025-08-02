@@ -14,6 +14,7 @@
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.2",
     "@ramonak/react-progress-bar": "^5.4.0",
+    "@supabase/supabase-js": "^2.52.1",
     "@toast-ui/calendar": "^2.1.3",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
@@ -36,6 +37,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
+    "supabase": "^2.31.8",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.0",
     "typescript": "^5"

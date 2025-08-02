@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { User, Clock, Calendar, BookOpen } from "lucide-react";
+import Link from "next/link";
 import Image from "next/image";
 import ProgressBar from "@ramonak/react-progress-bar";
 import { useSession } from "next-auth/react";
@@ -10,10 +11,12 @@ const PreferencesPage = () => {
   const { data: session, status } = useSession();
   const [buttonEnabled, setButtonEnabled] = useState(false);
   const timeOptions = ["None", "Morning", "Afternoon", "Evening", "Night"]; 
+  const classTimeOptions = ["7-2","9-4"]
   
   // Form state with proper typing
   const [preferences, setPreferences] = useState<Preferences>({
     totalHours: "",
+    classTime: "",
     studyDuration: "",
     breakDuration: "",
     preferredTime: "None"
@@ -28,7 +31,7 @@ const PreferencesPage = () => {
   };
 
   useEffect(() => {
-    if (preferences.totalHours !== "" && preferences.studyDuration !== "" && preferences.breakDuration !== ""){
+    if (preferences.totalHours !== "" && preferences.classTime !== "" && preferences.studyDuration !== "" && preferences.breakDuration !== ""){
       setButtonEnabled(true)
     }
   }, [preferences])
@@ -85,6 +88,31 @@ const PreferencesPage = () => {
                       placeholder="40"
                     />
                     <span className="text-sm text-gray-600">hours</span>
+                  </div>
+                </div>
+
+{/* Class Time */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Class Time
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={preferences.classTime}
+                      onChange={(e) => handleInputChange('classTime', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none bg-white"
+                    >
+                      {classTimeOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                      </svg>
+                    </div>
                   </div>
                 </div>
 
@@ -181,20 +209,12 @@ const PreferencesPage = () => {
 
           {/* Continue Button */}
 
-          <div className="flex justify-end mt-4">
-            <Link
-              href="/onboarding/user/upload"
-              className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-6 rounded-xl transition-colors"
-            >
-              Continue
-            </Link>
-
           <div className="flex justify-end mt-8">
             {buttonEnabled ? (
               <>
                 <button
                   onClick={() => {
-                    window.location.href = "/dashboard";
+                    window.location.href = "/onboarding/user/finishSetup";
                   }}
                   className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors cursor-pointer"
                 >
@@ -206,7 +226,7 @@ const PreferencesPage = () => {
                 <button
                   disabled
                   onClick={() => {
-                    window.location.href = "/dashboard";
+                    window.location.href = "/onboarding/user/finishSetup";
                   }}
                   className="bg-gray-400 text-white font-medium py-3 px-8 rounded-xl transition-colors cursor-not-allowed"
                 >
@@ -216,9 +236,10 @@ const PreferencesPage = () => {
             )}
 
           </div>
-        </div>
+        
       </div>
     </div>
+  </div>
   );
 };
 

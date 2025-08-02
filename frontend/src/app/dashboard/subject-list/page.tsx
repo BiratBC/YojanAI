@@ -1,9 +1,16 @@
+
 import React from 'react'
 
+import SubjectListComponent from '@/components/SubjectList';
+
+
 const SubjectList = () => {
+
+ 
+
   return (
     <div>
-      <h1>subject list page </h1>
+      <SubjectListComponent/>
     </div>
   )
 }
