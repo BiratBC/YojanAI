@@ -107,12 +107,12 @@ const Home = () => {
               ))}
             </div>
           </div>
-          <button
+          {/* <button
             onClick={createGoogleCalendarEvent}
             className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold "
           >
             Create Event
-          </button>
+          </button> */}
         </div>
       </div>
     </>

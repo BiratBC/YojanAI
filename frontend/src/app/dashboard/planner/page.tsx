@@ -1,11 +1,15 @@
-import React from 'react'
+import React from 'react';
+import Planner from "@/components/Planner";
 
-const Planner = () => {
+
+const Dashboard = async () => {
   return (
-    <div>
-      
-    </div>
-  )
-}
+    <>
+    <Planner/>
 
-export default Planner
+    </>
+  );
+};
+
+export default Dashboard;
+

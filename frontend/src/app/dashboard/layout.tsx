@@ -1,14 +1,13 @@
-import SessionWrapper from "@/components/SessionWrapper";
+import Dashboard from "@/components/Dashboard";
 
-
-export default function RootLayout({
+export default function DashboardLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <main className="">
-      {children}
-    </main>
+    <>
+      <Dashboard>{children}</Dashboard>
+    </>
   );
 }
