@@ -6,6 +6,11 @@ import pytesseract
 import json
 import re
 import os
+import pytesseract
+
+# Tell pytesseract where the Tesseract executable is located
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
 
 class SubjectListExtraction:
     def __init__(self, image_path):
