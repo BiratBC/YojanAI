@@ -75,41 +75,11 @@ def exchange_code(request):
     # Save tokens['access_token'], tokens['refresh_token'] securely
     return Response(tokens)
 
-# This is test view
-def create_google_event(access_token):
-    url = "https://www.googleapis.com/calendar/v3/calendars/primary/events"
-    
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
-
-    event_data = {
-        "summary": "AI-generated schedule: Deep Work",
-        "description": "2-hour deep work session",
-        "start": {
-            "dateTime": "2025-06-07T10:00:00+05:45",
-            "timeZone": "Asia/Kathmandu"
-        },
-        "end": {
-            "dateTime": "2025-06-07T12:00:00+05:45",
-            "timeZone": "Asia/Kathmandu"
-        },
-    }
-
-    response = requests.post(url, headers=headers, json=event_data)
-
-    if response.status_code == 200 or response.status_code == 201:
-        return response.json()
-    else:
-        print("Error:", response.json())
-        return None
-
-
 @api_view(['POST'])
 def weekly_sheduler(request):
     try:
         subjects = request.data.get('subjects', [])
+        # print(subjects)
         if not subjects:
             return Response({"error": "No subjects provided"}, status=400)
 

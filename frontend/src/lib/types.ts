@@ -12,8 +12,8 @@ export interface UploadState {
 export interface Preferences {
   totalHours: string;
   classTime : string;
-  studyDuration: string;
-  breakDuration: string;
+  maxSession: string;
+  minSession: string;
   preferredTime: string;
 }
 export type SessionUser = {
@@ -27,3 +27,15 @@ export type fileURLS = {
   classRoutine: string | null;
   subjectList: string | null;
 }
+
+export type ScheduleBlock = {
+  subject: string;
+  type: string;
+  color: string;
+};
+
+export type ScheduleData = {
+  [day: string]: {
+    [timeKey: string]: ScheduleBlock | null;
+  };
+};

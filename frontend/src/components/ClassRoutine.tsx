@@ -32,20 +32,11 @@ const ClassRoutineComponent = () => {
    };
      
    return (
-     <div>
-       {fileUrls.classRoutine && (
-         <div>
-           <h3>Class Routine</h3>
-           <a 
-             href={fileUrls.classRoutine} 
-             target="_blank" 
-             rel="noopener noreferrer"
-             className="text-blue-600 hover:underline"
-           >
-             View Class Routine
-           </a>
-         </div>
-       )}
+     <>
+ <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-3xl font-bold text-blue-600 mb-2">Class Routine</h3>
+
+      </div>
  
        {/* Embed PDF in iframe (optional) */}
        {fileUrls.classRoutine && (
@@ -56,7 +47,8 @@ const ClassRoutineComponent = () => {
            title="Class Routine"
          />
        )}
-     </div>
+     
+     </>
    )
 }
 

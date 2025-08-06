@@ -13,36 +13,38 @@ class WeeklyScheduler:
         self.end_hour = 22
         self.time_slots = list(range(0, (self.end_hour - self.start_hour) * 2))  # 32 slots
         
-        # Days of the week
+        # Days of the week  
         self.days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         
         # Subjects with their credit hours (determines study session allocation)
-        self.subjects = {s['subject']: {'credits': s['credits'], 'color': s.get('color', '#ADD8E6')} for s in subjects}
+        self.subjects = {s['Subject']: {'credits': s['Credit']} for s in subjects}
         
         # Fixed class times (time_slot, day_index)
         # Time slot 0 = 6:00-6:30, 1 = 6:30-7:00, etc.
         self.fixed_classes = {
+            # Class Times
+            # 9:00-16:00 (fixed class time)
+
+            
             # Monday
-            ('Monday', 0, 1): 'ENG 111',    # 6:00-7:00
-            ('Monday', 4, 5): 'MATH 208',   # 8:00-9:00
-            ('Monday', 6, 13): 'Class Time', # 9:00-16:00 (fixed class time)
-            ('Monday', 24, 25): 'COMP 202', # 18:00-19:00
-            ('Monday', 26, 27): 'COMP 204', # 19:00-20:00
-            
+            ('Monday', 6, 21): 'Class Time', 
+
             # Tuesday
-            ('Tuesday', 0, 1): 'MATH 207',   # 6:00-7:00
-            ('Tuesday', 6, 13): 'Class Time', # 9:00-16:00 (fixed class time)
-            ('Tuesday', 22, 23): 'COMP 202', # 17:00-18:00
-            
+            ('Tuesday', 6, 21): 'Class Time', 
+
             # Wednesday
-            ('Wednesday', 0, 1): 'MATH 208', # 6:00-7:00
-            ('Wednesday', 2, 3): 'ENG 111',  # 7:00-8:00
-            ('Wednesday', 6, 13): 'Class Time', # 9:00-16:00 (fixed class time)
-            ('Wednesday', 22, 23): 'MATH 207', # 17:00-18:00
-            ('Wednesday', 24, 25): 'COMP 202', # 18:00-19:00
-            ('Wednesday', 26, 27): 'COMP 204', # 19:00-20:00
+            ('Wednesday', 6, 21): 'Class Time', 
+     
+            # Thursday
+            ('Thursday', 6, 21): 'Class Time',
+
+            # Friday
+            ('Friday', 6, 21): 'Class Time',
+
+            # Sunday
+            ('Sunday', 6, 21): 'Class Time',
             
-            # Add more days as needed...
+    
         }
         
         # Variables for scheduling study sessions
@@ -164,7 +166,7 @@ class WeeklyScheduler:
             schedule[day][f"{start_time}-{end_time}"] = {
                 'subject': class_name,
                 'type': 'fixed',
-                'color': 'lightcoral' if class_name == 'Class Time' else self.subjects.get(class_name, {}).get('color', 'gray')
+                # 'color': 'lightcoral' if class_name == 'Class Time' else self.subjects.get(class_name, {}).get('color', 'gray')
             }
         
         # Add scheduled study sessions
@@ -175,7 +177,7 @@ class WeeklyScheduler:
                 schedule[day][f"{time_str}-{end_time}"] = {
                     'subject': subject,
                     'type': 'study',
-                    'color': self.subjects[subject]['color']
+                    # 'color': self.subjects[subject]['color']
                 }
         
         return schedule
@@ -222,7 +224,7 @@ class WeeklyScheduler:
                         'Time': time_slot,
                         'Subject': session['subject'],
                         'Type': session['type'],
-                        'Color': session['color']
+                        # 'Color': session['color']
                     })
         
         return pd.DataFrame(data)

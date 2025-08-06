@@ -1,11 +1,10 @@
 import React from 'react'
+import NotionWorkspace from '@/components/NotionWorkspace'
 
-const NotionWorkspace = () => {
+const NotionWorkspacePage = () => {
   return (
-    <div>
-    <h1>workspace page </h1>
-    </div>
+  <NotionWorkspace/>
   )
 }
 
-export default NotionWorkspace
+export default NotionWorkspacePage

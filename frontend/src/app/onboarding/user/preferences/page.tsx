@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { User, Clock, Calendar, BookOpen } from "lucide-react";
-import Link from "next/link";
+import { User} from "lucide-react";
 import Image from "next/image";
 import ProgressBar from "@ramonak/react-progress-bar";
 import { useSession } from "next-auth/react";
 import { Preferences } from "@/lib/types";
+import supabase from "@/lib/supabaseClient";
 
 const PreferencesPage = () => {
   const { data: session, status } = useSession();
@@ -16,9 +16,9 @@ const PreferencesPage = () => {
   // Form state with proper typing
   const [preferences, setPreferences] = useState<Preferences>({
     totalHours: "",
-    classTime: "",
-    studyDuration: "",
-    breakDuration: "",
+    classTime: "9-4",
+    maxSession: "",
+    minSession: "",
     preferredTime: "None"
   });
 
@@ -29,13 +29,39 @@ const PreferencesPage = () => {
       [field]: value
     }));
   };
+  const handleSubmit = async () => {
+  if (!session?.user?.email) {
+    alert("User not logged in.");
+    return;
+  }
+
+  const { error } = await supabase.from("user_preferences").upsert([
+    {
+      email: session.user.email,
+      total_hours: preferences.totalHours,
+      class_time: preferences.classTime,
+      max_session: preferences.maxSession,
+      min_session: preferences.minSession,
+      preferred_time: preferences.preferredTime,
+    }
+  ], {
+    onConflict: 'email', // if email is unique, it will update instead of insert duplicate
+  });
+
+  if (error) {
+    console.error("Failed to save preferences:", error.message);
+    alert("Failed to save preferences. Please try again.");
+  } else {
+    // Navigate if success
+    window.location.href = "/onboarding/user/finishSetup";
+  }
+};
 
   useEffect(() => {
-    if (preferences.totalHours !== "" && preferences.classTime !== "" && preferences.studyDuration !== "" && preferences.breakDuration !== ""){
+    if (preferences.totalHours !== "" && preferences.classTime !== "" && preferences.maxSession !== "" && preferences.minSession !== ""){
       setButtonEnabled(true)
     }
   }, [preferences])
-  
 
 
   return (
@@ -124,13 +150,13 @@ const PreferencesPage = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs text-gray-600 mb-1">
-                        For duration
+                        Maximum Session
                       </label>
                       <div className="flex items-center space-x-2">
                         <input
                           type="text"
-                          value={preferences.studyDuration}
-                          onChange={(e) => handleInputChange('studyDuration', e.target.value)}
+                          value={preferences.maxSession}
+                          onChange={(e) => handleInputChange('maxSession', e.target.value)}
                           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent w-16"
                           placeholder="25"
                         />
@@ -139,13 +165,13 @@ const PreferencesPage = () => {
                     </div>
                     <div>
                       <label className="block text-xs text-gray-600 mb-1">
-                        Rest duration
+                        Minimum session
                       </label>
                       <div className="flex items-center space-x-2">
                         <input
                           type="text"
-                          value={preferences.breakDuration}
-                          onChange={(e) => handleInputChange('breakDuration', e.target.value)}
+                          value={preferences.minSession}
+                          onChange={(e) => handleInputChange('minSession', e.target.value)}
                           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent w-16"
                           placeholder="5"
                         />
@@ -213,9 +239,7 @@ const PreferencesPage = () => {
             {buttonEnabled ? (
               <>
                 <button
-                  onClick={() => {
-                    window.location.href = "/onboarding/user/finishSetup";
-                  }}
+                  onClick={handleSubmit}
                   className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-colors cursor-pointer"
                 >
                   Continue

@@ -54,7 +54,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
         {/* Left Sidebar - Fixed */}
         <div className="w-56 bg-gray-50 flex flex-col flex-shrink-0">
           {/* Logo Section */}
-          <div className="px-6 py-8 flex items-center justify-center">
+          <div className="px-6 py-2 flex items-center justify-center">
             <Image
               src="/icons/logo.png"
               alt="Yojana Logo"
@@ -81,14 +81,6 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                     href="/dashboard/assignments"
                     className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
                   >
-                    Update / Reschedule
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/dashboard/assignments"
-                    className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
-                  >
                     All Assignments
                   </Link>
                 </li>
@@ -106,14 +98,6 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                     className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
                   >
                     Subject List
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/dashboard/calendar"
-                    className="block px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-600 transition-colors"
-                  >
-                    Calendar
                   </Link>
                 </li>
                 <li>
@@ -149,7 +133,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
         {/* Main Content Area */}
         <div className="flex-1 bg-white flex flex-col min-w-0">
           {/* Top Header - Fixed */}
-          <header className="bg-white px-6 py-4 flex items-center justify-between border-b border-gray-200 flex-shrink-0">
+          <header className="bg-white px-6 py-4 flex items-center justify-between border-b border-gray-200 flex-shrink-0 rounded-lg">
             <div className="flex items-center"></div>
 
             <div className="flex items-center space-x-4">
@@ -427,33 +411,9 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                 {/* Add more content here to test scrolling in right sidebar */}
                 <div className="mt-8 space-y-4">
                   <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900">Sample Task 1</h4>
+                    <h4 className="font-medium text-gray-900">Task 1</h4>
                     <p className="text-sm text-gray-600">
                       Complete assignment due tomorrow
-                    </p>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900">Sample Task 2</h4>
-                    <p className="text-sm text-gray-600">
-                      Study for upcoming exam
-                    </p>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900">Sample Task 3</h4>
-                    <p className="text-sm text-gray-600">
-                      Prepare presentation
-                    </p>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900">Sample Task 4</h4>
-                    <p className="text-sm text-gray-600">
-                      Review lecture notes
-                    </p>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900">Sample Task 5</h4>
-                    <p className="text-sm text-gray-600">
-                      Submit project proposal
                     </p>
                   </div>
                 </div>

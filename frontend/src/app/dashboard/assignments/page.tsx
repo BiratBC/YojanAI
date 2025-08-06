@@ -1,11 +1,10 @@
 import React from 'react'
+import Assignments from '@/components/Assignments'
 
-const Assignments = () => {
+const AssignmentsPage = () => {
   return (
-    <div>
-      <h1>assignment page </h1>
-    </div>
+    <Assignments/>
   )
 }
 
-export default Assignments
+export default AssignmentsPage

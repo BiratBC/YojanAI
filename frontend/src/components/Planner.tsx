@@ -1,37 +1,144 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "./ui/button";
-import { useSession, signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { SessionUser } from "@/lib/types";
+import React, { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import { ChevronLeft, ChevronRight, Calendar, Clock } from "lucide-react";
+import { ScheduleBlock, ScheduleData } from "@/lib/types";
+
+
+// Global declaration so that rendering wont change the color of the subject
+const subjectColorMap: { [key: string]: string } = {};
+const generateRandomColor = () => {
+  const hue = Math.floor(Math.random() * 360);
+  return `hsl(${hue}, 70%, 60%)`;
+};
 
 
 const Planner = () => {
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 4, 1));
-  const [subjects, setSubjects] = useState([
-     { "subject": "Math", "credits": 3, "color": "#FFA07A" },
-    { "subject": "Physics", "credits": 4, "color": "#87CEFA" }
-  ]);
+  const { data: session } = useSession();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [scheduleData, setScheduleData] = useState<ScheduleData>({});
+  const [subjects, setSubjects] = useState([]);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
-  const [data, setData] = useState({
-    message: "",
-    data: "",
-  });
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  const days = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session) {
-      signIn();
-    } else if (!(session.user as SessionUser)?.is_verified) {
-      router.replace("/login");
+  // Generate time slots from 06:00 to 21:00
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 6; hour <= 21; hour++) {
+      const timeStr = hour.toString().padStart(2, "0") + ":00";
+      slots.push(timeStr);
     }
-  }, [session, status]);
+    return slots;
+  };
 
-  
+  const timeSlots = generateTimeSlots();
+
+  // Memoize the getSubjectList function to prevent recreating it on every render
+  const getSubjectList = useCallback(async (email: string) => {
+    if (!email) {
+      setError("Email is required");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/extract-subject-list?email=${email}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to extract subjects");
+      }
+
+      const data = await response.json();
+      console.log("Raw response data:", data);
+      const parsedSubjectList = JSON.parse(data.data);
+      setSubjects(parsedSubjectList);
+      console.log("Subjects set:", parsedSubjectList);
+      return parsedSubjectList;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      setError(errorMessage);
+      console.error("Error extracting subjects:", err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Memoize the handleSubmit function
+  const handleSubmit = useCallback(
+    async (subjectsToSubmit = subjects) => {
+      if (!subjectsToSubmit || subjectsToSubmit.length === 0) {
+        console.log("No subjects to submit");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const res = await fetch("http://localhost:8080/dashboard/schedule/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subjects: subjectsToSubmit }),
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("Server error:", errorText);
+          return;
+        }
+
+        const data = await res.json();
+        const parsedSchedule = JSON.parse(data.data);
+        console.log("Schedule Success:", data);
+        setScheduleData(parsedSchedule || {});
+      } catch (err: any) {
+        console.error("Fetch error:", err.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [subjects]
+  );
+
+  // Initial setup effect - runs only once when session is available
+  useEffect(() => {
+    const initializeSchedule = async () => {
+      if (session?.user?.email && !hasInitialized) {
+        console.log("Initializing schedule for:", session.user.email);
+        setHasInitialized(true);
+
+        const fetchedSubjects = await getSubjectList(session.user.email);
+        if (fetchedSubjects && fetchedSubjects.length > 0) {
+          await handleSubmit(fetchedSubjects);
+        }
+      }
+    };
+
+    initializeSchedule();
+  }, [session?.user?.email, hasInitialized, getSubjectList, handleSubmit]);
+
   const formatMonthYear = (date: Date) => {
     return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
   };
@@ -39,152 +146,190 @@ const Planner = () => {
   const navigateMonth = (direction: "prev" | "next") => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
-      if (direction === "prev") {
-        newDate.setMonth(prev.getMonth() - 1);
-      } else {
-        newDate.setMonth(prev.getMonth() + 1);
-      }
+      if (direction === "prev") newDate.setMonth(prev.getMonth() - 1);
+      else newDate.setMonth(prev.getMonth() + 1);
       return newDate;
     });
   };
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:8000/dashboard/schedule/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          subjects,
-        }),
-      });
+  // Function to get schedule block for a specific time slot
+  const getScheduleBlock = (day: string, timeSlot: string) => {
+    const daySchedule = scheduleData[day] || {};
+    const nextHour =
+      (parseInt(timeSlot.split(":")[0]) + 1).toString().padStart(2, "0") +
+      ":00";
+    const timeRange = `${timeSlot}-${nextHour}`;
 
-      if (!res.ok) {
-        const errorText = await res.text(); // read raw HTML or error
-        console.error("Server error:", errorText);
-        return;
+    if (daySchedule[timeRange]) {
+      return daySchedule[timeRange];
+    }
+
+    // Check for overlapping time ranges
+    for (const [key, block] of Object.entries(daySchedule)) {
+      if (block && key.includes("-")) {
+        const [start, end] = key.split("-");
+        const currentTime = parseInt(timeSlot.split(":")[0]);
+        const startTime = parseInt(start.split(":")[0]);
+        const endTime = parseInt(end.split(":")[0]);
+
+        if (currentTime >= startTime && currentTime < endTime) {
+          return block;
+        }
       }
+    }
 
-      const data = await res.json(); // Only parse JSON if ok
-      console.log("Success:", data);
-      setData(data)
-    } catch (err: any) {
-      console.error("Fetch error:", err.message);
+    return null;
+  };
+
+  const getBackgroundColor = (block: ScheduleBlock): string => {
+    if (block.type === "fixed") {
+      if (block.subject === "Class Time") return "#f87171";
+      return "#e5e7eb";
+    }
+
+    if (subjectColorMap[block.subject]) {
+      return subjectColorMap[block.subject];
+    }
+    const newColor = generateRandomColor();
+    subjectColorMap[block.subject] = newColor;
+
+    return newColor;
+  };
+
+  // regenrate schedule ** danger
+  const regenerateSchedule = async () => {
+    if (subjects && subjects.length > 0) {
+      await handleSubmit(subjects);
     }
   };
 
-  const timeSlots = [
-    "7am",
-    "8am",
-    "9am",
-    "10am",
-    "11am",
-    "12pm",
-    "1pm",
-    "2pm",
-    "3pm",
-    "4pm",
-  ];
-
-  const weekDays = [
-    "Sun 25",
-    "Mon 26",
-    "Tue 27",
-    "Wed 28",
-    "Thu 29",
-    "Fri 30",
-    "Sat 31",
-  ];
-
   return (
-    <>
-      <h1>{data?.data}</h1>
-      <div className="h-full overflow-y-auto">
-        <div className="p-6">
-          <Button onClick={handleSubmit}>Submit Subjects</Button>
-          {/* Month Navigation */}
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-semibold text-gray-800">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-purple-600 text-white p-6 rounded-b-lg shadow-lg">
+        <div className="flex items-center gap-3 mb-2">
+          <Calendar className="w-8 h-8" />
+          <h1 className="text-2xl font-bold">Weekly Schedule</h1>
+        </div>
+        <p className="text-blue-100">Your optimized study and class schedule</p>
+      </div>
+
+      {/* Controls */}
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={regenerateSchedule}
+              disabled={loading || !subjects || subjects.length === 0}
+              className="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-500 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {loading ? "Generating..." : "Regenerate Schedule"}
+            </button>
+            <h2 className="text-xl font-semibold text-gray-800">
               {formatMonthYear(currentDate)}
-            </h1>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => navigateMonth("prev")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5 text-gray-600" />
-              </button>
-              <button
-                onClick={() => navigateMonth("next")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
+            </h2>
+            {subjects.length > 0 && (
+              <span className="text-sm text-gray-600">
+                {subjects.length} subjects loaded
+              </span>
+            )}
           </div>
 
-          {/* Weekly Calendar View */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            {/* Week Days Header */}
-            <div className="grid grid-cols-8 border-b border-gray-200">
-              <div className="p-4 border-r border-gray-200"></div>
-              {weekDays.map((day, index) => (
-                <div
-                  key={index}
-                  className="p-4 text-center border-r border-gray-200 last:border-r-0"
-                >
-                  <div className="text-sm font-medium text-gray-700">
-                    {day.split(" ")[0]}
-                  </div>
-                  <div className="text-lg font-semibold text-gray-900 mt-1">
-                    {day.split(" ")[1]}
-                  </div>
-                </div>
-              ))}
+          {loading && (
+            <div className="text-center py-4">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p className="mt-2 text-gray-600">Processing your schedule...</p>
             </div>
+          )}
 
-            {/* Time Slots and Calendar Grid */}
-            <div className="grid grid-cols-8">
-              {/* Time Column */}
-              <div className="border-r border-gray-200">
-                {timeSlots.map((time, index) => (
-                  <div
-                    key={index}
-                    className="h-20 px-4 py-2 border-b border-gray-100 last:border-b-0"
-                  >
-                    <span className="text-sm text-gray-600">{time}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Calendar Days */}
-              {weekDays.map((day, dayIndex) => (
-                <div
-                  key={dayIndex}
-                  className="border-r border-gray-200 last:border-r-0"
-                >
-                  {timeSlots.map((time, timeIndex) => (
-                    <div
-                      key={`${dayIndex}-${timeIndex}`}
-                      className="h-20 border-b border-gray-100 last:border-b-0 p-1 hover:bg-gray-50 transition-colors cursor-pointer"
-                    >
-                      {/* This is where assignments would be rendered if they existed */}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Optional: Add some helper text or additional controls */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-500 text-sm">
-              Click on any time slot to add an assignment or task
-            </p>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => navigateMonth("prev")}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            <button
+              onClick={() => navigateMonth("next")}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
           </div>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-700">Error: {error}</p>
+          </div>
+        )}
+
+        {/* Schedule Grid */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="grid grid-cols-8 gap-0">
+            {/* Header */}
+            <div className="bg-gray-100 p-3 font-semibold text-gray-700 border-b border-r flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              Time
+            </div>
+            {days.map((day) => (
+              <div
+                key={day}
+                className="bg-gray-100 p-3 font-semibold text-center text-gray-700 border-b border-r"
+              >
+                {day}
+              </div>
+            ))}
+
+            {/* Time slots */}
+            {timeSlots.map((timeSlot) => (
+              <React.Fragment key={timeSlot}>
+                <div className="p-3 text-sm font-medium text-gray-600 border-b border-r bg-gray-50 flex items-center">
+                  {timeSlot}
+                </div>
+                {days.map((day) => {
+                  const block = getScheduleBlock(day, timeSlot);
+                  // {console.log("this is block", block);                }
+                  return (
+                    <div
+                      key={`${day}-${timeSlot}`}
+                      className="p-2 border-b border-r min-h-[60px] flex items-center"
+                    >
+                      {block ? (
+                        <div
+                          className="w-full p-2 rounded-lg shadow-sm transition-all hover:shadow-md text-white text-xs"
+                          style={{
+                            backgroundColor: getBackgroundColor(block),
+                          }}
+                        >
+                          <div className="font-semibold leading-tight">
+                            {block.subject}
+                          </div>
+                          <div className="opacity-90 capitalize mt-1">
+                            {block.type}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full"></div>
+                      )}
+                    </div>
+                  );
+                })}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+
+        {/* Instructions */}
+        <div className="mt-4 text-center">
+          <p className="text-gray-500 text-sm">
+            Your personalized schedule optimizes study time based on your course
+            credits and availability
+          </p>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
